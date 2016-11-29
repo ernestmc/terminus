@@ -8,6 +8,8 @@ import argparse
 import sys
 import os
 
+import cProfile, pstats, StringIO
+
 parser = argparse.ArgumentParser()
 
 # The builder class
@@ -60,4 +62,14 @@ sdf_generator.write_to(destination_sdf_file)
 
 # For the time being we use an arbitrary (lat,lon) pair as the origin
 rndf_generator = RNDFGenerator(city, Point(10, 65))
+
+pr = cProfile.Profile()
+pr.enable()
 rndf_generator.write_to(destination_rndf_file)
+pr.disable()
+s = StringIO.StringIO()
+ps = pstats.Stats(pr, stream=s)
+ps.strip_dirs()
+ps.sort_stats("cumtime")
+ps.print_stats(.5)
+print s.getvalue()
